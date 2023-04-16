@@ -3,9 +3,13 @@ import { Box } from "@chakra-ui/react";
 import Conversations from "./Conversations";
 import { useUser } from "@supabase/auth-helpers-react";
 import { useEffect } from "react";
+import { useContext } from "react";
+import { Context } from "@/context";
+import CurrentConversation from "./CurrentConversation";
 
 export default function Chat() {
     const user = useUser();
+    const { displayed } = useContext(Context);
     useEffect(() => {
         const makeProfile = async () => {
         const { data, error } = supabase
@@ -37,6 +41,7 @@ export default function Chat() {
 	return (
 		<Box>
             <Conversations />
+            {displayed && <CurrentConversation />}
         </Box>
 	);
 }

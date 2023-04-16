@@ -4,6 +4,9 @@ import { useState } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { extendTheme } from "@chakra-ui/react";
 import { supabase } from "@/utils/supabase";
+import { ContextProvider } from "@/context";
+import { Provider } from "react-redux";
+import { store } from '../store'
 
 const config = {
   initialColorMode: "dark",
@@ -36,7 +39,11 @@ export default function App({ Component, pageProps }) {
 			supabaseClient={supabaseClient}
 			initialSession={pageProps.initialSession}>
       <ChakraProvider theme={theme}>
-			  <Component {...pageProps} />
+        <Provider store={store}>
+          <ContextProvider>
+			      <Component {...pageProps} />
+          </ContextProvider>
+        </Provider>
       </ChakraProvider>
 		</SessionContextProvider>
 	);

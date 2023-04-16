@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const user = useUser();
-  // console.log('user = ', user);
 	return (
 		<Box height='100vh' width='100vw'>
 			{user ? <Chat /> : <Auth />}

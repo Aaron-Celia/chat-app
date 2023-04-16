@@ -1,36 +1,39 @@
-import {
-	Box,
-	Button,
-	Center,
-	Stack,
-	Text,
-	useDisclosure
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import {
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalFooter,
-	ModalBody,
-	ModalCloseButton
-} from "@chakra-ui/react";
+import { Context } from "@/context";
+import { fetchMessagesAsync } from "@/slices/messagesSlice";
 import { supabase } from "@/utils/supabase";
-import { Input } from "@chakra-ui/react";
-import Image from "next/image";
+import {
+    Box,
+    Button,
+    Center,
+    Input,
+    Modal,
+    ModalBody,
+    ModalCloseButton,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ModalOverlay,
+    Stack,
+    Text,
+    useDisclosure
+} from "@chakra-ui/react";
 import { useUser } from "@supabase/auth-helpers-react";
-import CurrentConversation from "./CurrentConversation";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function Conversations() {
 	const [convos, setConvos] = useState([]);
 	const [convoId, setConvoId] = useState("");
-	const [receiverName, setReceiverName] = useState("");
+	// const [receiverName, setReceiverName] = useState("");
 	const [searchResults, setSearchResults] = useState([]);
 	const [searchQuery, setSearchQuery] = useState("");
-	const [displayed, setDisplayed] = useState(false);
+	// const [displayChat, setDisplayChat] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const user = useUser();
+    const router = useRouter();
+    const dispatch = useDispatch();
+    const { updateConvoId, updateDisplayed } = useContext(Context);
 	const handleSignOut = async () => {
 		try {
 			await supabase.auth.signOut();
@@ -59,7 +62,8 @@ export default function Conversations() {
 		receiverId,
 		receiverName
 	) => {
-		if (convos.find((convo) => convo.name === receiverName)) { // will be a logical bug if two people have the same exact names on their google account, but that's a very rare case.
+		if (convos.find((convo) => convo.name === receiverName)) {
+			// will be a logical bug if two people have the same exact names on their google account, but that's a very rare case.
 			alert("conversation already exists");
 			return;
 		}
@@ -84,7 +88,8 @@ export default function Conversations() {
 
 	const getConvos = async (payload) => {
 		if (payload) {
-			if (convos.includes({ name: payload.receiverName, id: payload.id })) { // AKA do nothing if the conversation already exists. It won't if this function gets called with a payload passed to it but it's good to have this check here just in case. 
+			if (convos.includes({ name: payload.receiverName, id: payload.id })) {
+				// AKA do nothing if the conversation already exists. It won't if this function gets called with a payload passed to it but it's good to have this check here just in case.
 				return;
 			}
 			if (payload.creatorName === user?.user_metadata.full_name) {
@@ -97,7 +102,9 @@ export default function Conversations() {
 				.from("convos")
 				.select("*")
 				.or(`userIdOne.eq.${user?.id}, userIdTwo.eq.${user?.id}`);
-			if (error) console.log("error getConvos", error);
+			if (error){
+                if(error.message === "JWT expired") router.push('/session-expired')
+            } console.log("error getConvos", error);
 			const conversations = data.map((convo) => {
 				if (convo.creatorName === user?.user_metadata.full_name) {
 					return {
@@ -114,6 +121,12 @@ export default function Conversations() {
 			setConvos(conversations);
 		}
 	};
+
+	// const setFocusedState = (index) => {
+	// 	const buttonEle = document.getElementById(`${index}`);
+	// 	// const event = new Event();
+	// 	buttonEle.addEventListener("focus", (event) => {});
+	// };
 
 	useEffect(() => {
 		supabase
@@ -165,6 +178,9 @@ export default function Conversations() {
 							<ModalBody>
 								<Input
 									onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if(e.key === "Enter") findUsers(searchQuery);
+                                    }}
 									placeholder="Search for a name"
 									value={searchQuery}
 								/>
@@ -214,38 +230,53 @@ export default function Conversations() {
 					top="13vh"
 					height="100vh"
 					backgroundColor="black"
-					overflow="scroll">
+					overflow="auto">
 					{convos.length ? (
-						convos.map((convo) => (
+						convos.map((convo, index) => (
 							<Center>
 								<Button
 									backgroundColor={convoId === convo.id ? "#454545" : "gray"}
+									borderRight={convoId === convo.id ? "blue 3px" : "none"}
+									borderTop={convoId === convo.id ? "white 1px" : "none"}
 									width="85%"
 									height="70px"
 									mt={2}
+									id={`${index}`}
+									key={`num${index}`}
 									onClick={() => {
-                                        setDisplayed(true);
-                                        setConvoId(convo.id);
-                                        setReceiverName(convo.name);
-                                    }}>
+                                        updateDisplayed(true);
+										updateConvoId(convo.id);
+                                        dispatch(fetchMessagesAsync({ convoId: convo.id }))
+										// setFocusedState(index);
+										// setDisplayChat(true);
+										setConvoId(convo.id);
+										// updateReceiverInfo({ name: convo.name, id: convo.id });
+									}}
+									// onFocus={(e) => {
+									// 	// let thisButton = document.getElementById(`${index}`);
+									// 	// thisButton.style.backgroundColor ="#3d84f7";
+									// 	// thisButton.style.color ="black";
+									// 	if (e.target.focus() === true) {
+									// 		e.target.style.backgroundColor = "#3d84f7";
+									// 	} else {
+									//         let func = () => {
+									//             let thisButton = document.querySelector(`num${index}`);
+									//             thisButton.style.backgroundColor = "#454545";
+									//         }
+									//         func()
+									// 	}
+									// }}
+								>
 									<Text color="white">{convo.name}</Text>
 								</Button>
 							</Center>
 						))
+                        
 					) : (
 						<Center mt={5}>
 							<Text color="white">No conversations yet</Text>
 						</Center>
 					)}
-
-					<Box
-						width="80vw"
-						height="100vh"
-						overflow="auto"
-						position="relative"
-						left="20vw">
-						{ displayed && <CurrentConversation receiver={receiverName} convoId={convoId} /> }
-					</Box>
 				</Box>
 			</Stack>
 		</Box>
