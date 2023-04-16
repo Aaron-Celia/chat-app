@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Input } from "@chakra-ui/react";
+import { Box, Button, IconButton, Input, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/utils/supabase";
 import { useUser } from "@supabase/auth-helpers-react";
@@ -17,19 +17,23 @@ export default function CurrentConversation({ convoId, receiver }) {
         if(receiver.error){
             console.log('error sendMessage: ', receiver.error);
             return;
-        } else {
+        } else if (message){
             const { data, error } = await supabase
                 .from('messages')
                 .insert([
                     {
-                        sender: user?.user_metadata.full_name,
+                        sender: user?.id,
                         receiver: receiver.data[0].userIdTwo,
                         convoId: convoId,
-                        message: composedMessage,
+                        message: message,
                     }
                 ]).select('*');
             if(error) console.log('error', error);
-            setMessages([...messages, { sender: data[0].sender, receiver: data[0].receiver, message: data[0].message }]);
+            console.log('message data: ', data);
+            messages?.length > 0 
+            ? setMessages([...messages, data])
+            : setMessages(data);
+            setComposedMessage('');
         }
     }
 
@@ -55,34 +59,31 @@ export default function CurrentConversation({ convoId, receiver }) {
 				},
 				(payload) => {
 					console.log("payload.new", payload.new);
-					if (payload.new.convoId === convoId && !messages.includes({ sender: payload.new.sender, receiver: payload.new.receiver, message: payload.new.message })) {
-						setMessages([...messages, { sender: payload.new.sender, receiver: payload.new.receiver, message: payload.new.message }]);
+					if (payload.new.convoId === convoId && !messages.includes(payload.new)) {
+						setMessages([...messages, payload.new]);
 					}
 				}
-			)
+            )
 			.subscribe();
 	}, []);
+    console.log('MESSAGES', messages);
 	return (
 		<Box overflow="auto" height="100%" width="100%">
-			{messages?.length
-				? messages.map((message) => (
-						<Box
-							backgroundColor={
-								message.sender === user?.user_metadata.full_name
-									? "#3d84f7"
-									: "gray"
-							}
-							position={
-								message.sender === user?.user_metadata.full_name
-									? "relative right 5px"
-									: "relative left 5px"
-							}
-							height="auto"
-							width="auto">
-							{message.message}
-						</Box>
-				  ))
-				: null}
+			{messages?.length > 0 ? (
+				messages.map((message) => (
+					<Box
+						backgroundColor={message.sender === user?.id ? "#3d84f7" : "gray"}
+						position='relative'
+						left={message.sender === user?.id ? null : "5px"}
+						right={message.sender === user?.id ? "5px" : null}
+						height="auto"
+						width="auto">
+						{message.message}
+					</Box>
+				))
+			) : (
+				<Text>start a convo</Text>
+			)}
 			<Box
 				display="flex"
 				justifyContent="space-between"
@@ -91,7 +92,7 @@ export default function CurrentConversation({ convoId, receiver }) {
 				<Input
 					width="70vw"
 					onChange={(e) => setComposedMessage(e.target.value)}
-                    value={composedMessage}
+					value={composedMessage}
 					placeholder="Message..."
 				/>
 				<Button

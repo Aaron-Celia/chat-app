@@ -28,6 +28,7 @@ export default function Conversations() {
 	const [receiverName, setReceiverName] = useState("");
 	const [searchResults, setSearchResults] = useState([]);
 	const [searchQuery, setSearchQuery] = useState("");
+	const [displayed, setDisplayed] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const user = useUser();
 	const handleSignOut = async () => {
@@ -223,6 +224,7 @@ export default function Conversations() {
 									height="70px"
 									mt={2}
 									onClick={() => {
+                                        setDisplayed(true);
                                         setConvoId(convo.id);
                                         setReceiverName(convo.name);
                                     }}>
@@ -242,7 +244,7 @@ export default function Conversations() {
 						overflow="auto"
 						position="relative"
 						left="20vw">
-						<CurrentConversation receiver={receiverName} convoId={convoId} />
+						{ displayed && <CurrentConversation receiver={receiverName} convoId={convoId} /> }
 					</Box>
 				</Box>
 			</Stack>
