@@ -1,0 +1,5 @@
+.convoBox:hover {
+    background-color: #3d84f7;
+    color: black;
+    transform: scale(1.2);
+}

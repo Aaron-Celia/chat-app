@@ -18,9 +18,11 @@ import {
     useDisclosure
 } from "@chakra-ui/react";
 import { useUser } from "@supabase/auth-helpers-react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import styles from "@/styles/Conversations.module.css";
 
 export default function Conversations() {
 	const [convos, setConvos] = useState([]);
@@ -107,7 +109,7 @@ export default function Conversations() {
 				if (convo.creatorName === user?.user_metadata.full_name) {
 					return {
 						name: `${convo.receiverName}`,
-						id: convo.id
+						id: convo.id,
 					};
 				} else {
 					return {
@@ -119,6 +121,17 @@ export default function Conversations() {
 			setConvos(conversations);
 		}
 	};
+
+    const assignAvatars = async () => {
+        const conversations = await Promise.all(convos.map(async (convo) => {
+            const { data, error, } = await supabase
+                .from('profiles')
+                .select('avatar_url')
+                .eq('id', convo.id);
+            if(!error) convo.avatar_url = data[0].avatar_url;
+        }))
+        setConvos(conversations);
+    }
 
 	useEffect(() => {
 		supabase
@@ -170,9 +183,12 @@ export default function Conversations() {
 							<ModalBody>
 								<Input
 									onChange={(e) => setSearchQuery(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if(e.key === "Enter") findUsers(searchQuery);
-                                    }}
+									onKeyDown={async (e) => {
+										if (e.key === "Enter") {
+											await findUsers(searchQuery);
+											assignAvatars();
+										}
+									}}
 									placeholder="Search for a name"
 									value={searchQuery}
 								/>
@@ -206,7 +222,10 @@ export default function Conversations() {
 										Close
 									</Button>
 									<Button
-										onClick={() => findUsers(searchQuery)}
+										onClick={async () => {
+											await findUsers(searchQuery);
+											assignAvatars();
+										}}
 										backgroundColor="#3d84f7"
 										mr={3}>
 										Search
@@ -226,27 +245,27 @@ export default function Conversations() {
 					{convos.length ? (
 						convos.map((convo, index) => (
 							<Center>
-								<Button
-									backgroundColor={convoId === convo.id ? "#454545" : "gray"}
-									borderRight={convoId === convo.id ? "blue 3px" : "none"}
-									borderTop={convoId === convo.id ? "white 1px" : "none"}
+								<Box
+									backgroundColor={convoId === convo.id ? "#3d84f7" : "gray"}
+									// borderRight={convoId === convo.id ? "blue 3px" : "none"}
+									// borderTop={convoId === convo.id ? "white 1px" : "none"}
+                                    className={styles.convoBox}
 									width="85%"
 									height="70px"
 									mt={2}
 									id={`${index}`}
 									key={`num${index}`}
 									onClick={() => {
-                                        updateDisplayed(true);
+										updateDisplayed(true);
 										updateConvoId(convo.id);
-                                        dispatch(fetchMessagesAsync({ convoId: convo.id }))
+										dispatch(fetchMessagesAsync({ convoId: convo.id }));
 										setConvoId(convo.id);
-									}}
-								>
-									<Text color="white">{convo.name}</Text>
-								</Button>
+									}}>
+									<Image src={convo.avatar_url} height="30px" alt="avatar" />
+									<Text color={convoId === convo.id ? 'black' : 'white'}>{convo.name}</Text>
+								</Box>
 							</Center>
 						))
-                        
 					) : (
 						<Center mt={5}>
 							<Text color="white">No conversations yet</Text>
