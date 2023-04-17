@@ -184,11 +184,8 @@ export default function Conversations() {
 								<Input
 									onChange={(e) => setSearchQuery(e.target.value)}
 									onKeyDown={async (e) => {
-										if (e.key === "Enter") {
-											await findUsers(searchQuery);
-											assignAvatars();
-										}
-									}}
+                                        if (e.key === "Enter") findUsers(searchQuery);
+                                    }}
 									placeholder="Search for a name"
 									value={searchQuery}
 								/>
@@ -222,10 +219,7 @@ export default function Conversations() {
 										Close
 									</Button>
 									<Button
-										onClick={async () => {
-											await findUsers(searchQuery);
-											assignAvatars();
-										}}
+										onClick={() => findUsers(searchQuery)}
 										backgroundColor="#3d84f7"
 										mr={3}>
 										Search
@@ -253,14 +247,12 @@ export default function Conversations() {
 									mt={2}
 									id={`${index}`}
 									key={`num${index}`}
-                                    leftIcon={<Image src={convo.avatar_url} height="20px" alt="avatar" />}
 									onClick={() => {
 										updateDisplayed(true);
 										updateConvoId(convo.id);
 										dispatch(fetchMessagesAsync({ convoId: convo.id }));
 										setConvoId(convo.id);
 									}}>
-									{/* <Image src={convo.avatar_url} height="20px" alt="avatar" /> */}
 									<Text color={convoId === convo.id ? 'black' : 'white'}>{convo.name}</Text>
 								</Button>
 							</Center>
