@@ -251,6 +251,7 @@ export default function Conversations() {
 									// borderTop={convoId === convo.id ? "white 1px" : "none"}
                                     className={styles.convoBox}
                                     // display='flex'
+                                    zIndex={3}
                                     borderRadius='3xl'
 									width="85%"
 									height="70px"
