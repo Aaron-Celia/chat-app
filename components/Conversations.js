@@ -250,7 +250,7 @@ export default function Conversations() {
 									// borderRight={convoId === convo.id ? "blue 3px" : "none"}
 									// borderTop={convoId === convo.id ? "white 1px" : "none"}
                                     className={styles.convoBox}
-                                    display='flex'
+                                    // display='flex'
                                     borderRadius='3xl'
 									width="85%"
 									height="70px"
@@ -263,7 +263,7 @@ export default function Conversations() {
 										dispatch(fetchMessagesAsync({ convoId: convo.id }));
 										setConvoId(convo.id);
 									}}>
-									<Image src={convo.avatar_url} height="20px" alt="avatar" />
+									{/* <Image src={convo.avatar_url} height="20px" alt="avatar" /> */}
 									<Text color={convoId === convo.id ? 'black' : 'white'}>{convo.name}</Text>
 								</Box>
 							</Center>
