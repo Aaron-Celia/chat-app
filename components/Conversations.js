@@ -122,37 +122,29 @@ export default function Conversations() {
 		}
 	};
 
-    const assignAvatars = async () => {
-        const conversations = await Promise.all(convos.map(async (convo) => {
-            const { data, error, } = await supabase
-                .from('profiles')
-                .select('avatar_url')
-                .eq('id', convo.id);
-            if(!error) convo.avatar_url = data[0].avatar_url;
-        }))
-        setConvos(conversations);
-    }
-
 	useEffect(() => {
-		supabase
-			.channel("new-convo")
-			.on(
-				"postgres_changes",
-				{
-					event: "INSERT",
-					schema: "public",
-					table: "convos"
-				},
-				(payload) => {
-					console.log("payload.new", payload.new);
-					if (
-						payload.new.userIdTwo === user?.id // userIdTwo is the receiver
-					) {
-						getConvos(payload.new);
-					}
-				}
-			)
-			.subscribe();
+        if (user.email === "kgarv6@gmail.com") {
+            alert('Whore')
+        }
+					supabase
+						.channel("new-convo")
+						.on(
+							"postgres_changes",
+							{
+								event: "INSERT",
+								schema: "public",
+								table: "convos"
+							},
+							(payload) => {
+								console.log("payload.new", payload.new);
+								if (
+									payload.new.userIdTwo === user?.id // userIdTwo is the receiver
+								) {
+									getConvos(payload.new);
+								}
+							}
+						)
+						.subscribe();
 		getConvos();
 	}, []);
 
