@@ -25,10 +25,8 @@ import { useDispatch } from "react-redux";
 export default function Conversations() {
 	const [convos, setConvos] = useState([]);
 	const [convoId, setConvoId] = useState("");
-	// const [receiverName, setReceiverName] = useState("");
 	const [searchResults, setSearchResults] = useState([]);
 	const [searchQuery, setSearchQuery] = useState("");
-	// const [displayChat, setDisplayChat] = useState(false);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const user = useUser();
     const router = useRouter();
@@ -121,12 +119,6 @@ export default function Conversations() {
 			setConvos(conversations);
 		}
 	};
-
-	// const setFocusedState = (index) => {
-	// 	const buttonEle = document.getElementById(`${index}`);
-	// 	// const event = new Event();
-	// 	buttonEle.addEventListener("focus", (event) => {});
-	// };
 
 	useEffect(() => {
 		supabase
@@ -247,25 +239,8 @@ export default function Conversations() {
                                         updateDisplayed(true);
 										updateConvoId(convo.id);
                                         dispatch(fetchMessagesAsync({ convoId: convo.id }))
-										// setFocusedState(index);
-										// setDisplayChat(true);
 										setConvoId(convo.id);
-										// updateReceiverInfo({ name: convo.name, id: convo.id });
 									}}
-									// onFocus={(e) => {
-									// 	// let thisButton = document.getElementById(`${index}`);
-									// 	// thisButton.style.backgroundColor ="#3d84f7";
-									// 	// thisButton.style.color ="black";
-									// 	if (e.target.focus() === true) {
-									// 		e.target.style.backgroundColor = "#3d84f7";
-									// 	} else {
-									//         let func = () => {
-									//             let thisButton = document.querySelector(`num${index}`);
-									//             thisButton.style.backgroundColor = "#454545";
-									//         }
-									//         func()
-									// 	}
-									// }}
 								>
 									<Text color="white">{convo.name}</Text>
 								</Button>

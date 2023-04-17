@@ -5,16 +5,12 @@ import { supabase } from "@/utils/supabase";
 import { useUser } from "@supabase/auth-helpers-react";
 
 export default function Auth() {
-    const user = useUser();
 	async function handleSignIn() {
         try {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: "google"
             });
             if (error) console.log("error", error);
-            else if(user) {
-                console.log("user", user);
-            }
         } catch (err) {
             console.log("err", err);
         }

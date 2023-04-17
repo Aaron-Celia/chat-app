@@ -1,35 +1,26 @@
-import {
-	Box,
-	Button,
-	Center,
-	Container,
-	IconButton,
-	Input,
-	Stack,
-	Text
-} from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import { supabase } from "@/utils/supabase";
-import { useUser } from "@supabase/auth-helpers-react";
-import { ArrowUpIcon } from "@chakra-ui/icons";
-import { useContext } from "react";
 import { Context } from "@/context";
-import { useDispatch, useSelector } from "react-redux";
-import { createMessageAsync, fetchMessagesAsync } from "@/slices/messagesSlice";
+import { createMessageAsync } from "@/slices/messagesSlice";
+import { supabase } from "@/utils/supabase";
+import { ArrowUpIcon } from "@chakra-ui/icons";
+import {
+    Box,
+    Button,
+    Center,
+    Input,
+    Stack,
+    Text
+} from "@chakra-ui/react";
+import { useUser } from "@supabase/auth-helpers-react";
+import { useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function CurrentConversation() {
 	const [composedMessage, setComposedMessage] = useState("");
-	// const [receiver, setReceiver] = useState({});
-	const [submitted, setSubmitted] = useState(false);
-	const [newMessage, setNewMessage] = useState([]);
-	const [messages, setMessages] = useState([]); // array of objects representing each message, objects have sender, receiver, and message keys
+	const [messages, setMessages] = useState([]);
 	const user = useUser();
 	const dispatch = useDispatch();
-	// let messages = useSelector((state) => state.messages.messages)
-	// const { messages, updateMessages, displayed, convoId, receiver, updateReceiverInfo } = useContext(Context);
 	const {
 		convoId,
-		updateDisplayed,
 		displayed,
 		receiverInfo,
 		updateReceiverInfo
@@ -83,32 +74,9 @@ export default function CurrentConversation() {
     }
 
 	useEffect(() => {
-		// fetchMessagesAsync({ convoId: convoId })
 		getReceiverInfo();
 		getMessagesOnLoad();
 	}, [convoId]);
-	// useEffect(() => {
-	// dispatch(createMessageAsync({
-	// 	convoId: convoId,
-	// 	message: composedMessage,
-	// 	sender: user?.id,
-	// 	receiver: receiverInfo.id
-	// }));
-	// supabase
-	// 	.channel("messages-insert")
-	// 	.on(
-	// 		"postgres_changes",
-	// 		{ event: "INSERT", schema: "public", table: "messages" },
-	// 		(payload) => {
-	// 			// When a new message is inserted into the messages table, add it to the messages state
-	// 			if (payload.new.convoId === convoId) {
-	// 				setMessages((messages) => [...messages, payload.new]);
-	// 			}
-	// 		}
-	// 	)
-	// 	.subscribe();
-	// }, [submitted]);
-	console.log("MESSAGES", messages ? messages : null);
 	return (
 		<>
 			{displayed && (
@@ -139,13 +107,6 @@ export default function CurrentConversation() {
 							{messages?.length ? (
 								messages.map((message, index) => (
 									<Box
-                                    // backgroundColor='red'
-										// backgroundColor={
-										// 	message.sender === user?.id ? "#3d84f7" : "gray"
-										// }
-										// position="relative"
-										// left={message.sender === user?.id ? null : "0px"}
-										// right={message.sender === user?.id ? "0px" : null}
 										height="auto"
 										width="100%"
 										key={`${index}`}
@@ -154,11 +115,13 @@ export default function CurrentConversation() {
 											backgroundColor={
 												message.sender === user?.id ? "#3d84f7" : "gray"
 											}
-                                            width='100%'>
+                                            width='100%'
+                                            height='auto'>
 											<Text
 												position="relative"
 												left={message.sender === user?.id ? "" : "0"}
-												right={message.sender === user?.id ? "0" : ""}>
+												right={message.sender === user?.id ? "0" : ""}
+                                                fontSize='2xl'>
 												{message.message}
 											</Text>
 										</Box>
