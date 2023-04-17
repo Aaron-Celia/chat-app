@@ -245,19 +245,15 @@ export default function Conversations() {
 					{convos.length ? (
 						convos.map((convo, index) => (
 							<Center>
-								<Box
+								<Button
 									backgroundColor={convoId === convo.id ? "#3d84f7" : "gray"}
-									// borderRight={convoId === convo.id ? "blue 3px" : "none"}
-									// borderTop={convoId === convo.id ? "white 1px" : "none"}
                                     className={styles.convoBox}
-                                    // display='flex'
-                                    zIndex={3}
-                                    borderRadius='3xl'
 									width="85%"
 									height="70px"
 									mt={2}
 									id={`${index}`}
 									key={`num${index}`}
+                                    leftIcon={<Image src={convo.avatar_url} height="20px" alt="avatar" />}
 									onClick={() => {
 										updateDisplayed(true);
 										updateConvoId(convo.id);
@@ -266,7 +262,7 @@ export default function Conversations() {
 									}}>
 									{/* <Image src={convo.avatar_url} height="20px" alt="avatar" /> */}
 									<Text color={convoId === convo.id ? 'black' : 'white'}>{convo.name}</Text>
-								</Box>
+								</Button>
 							</Center>
 						))
 					) : (
