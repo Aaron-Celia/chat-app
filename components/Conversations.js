@@ -2,20 +2,20 @@ import { Context } from "@/context";
 import { fetchMessagesAsync } from "@/slices/messagesSlice";
 import { supabase } from "@/utils/supabase";
 import {
-    Box,
-    Button,
-    Center,
-    Input,
-    Modal,
-    ModalBody,
-    ModalCloseButton,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    ModalOverlay,
-    Stack,
-    Text,
-    useDisclosure
+	Box,
+	Button,
+	Center,
+	Input,
+	Modal,
+	ModalBody,
+	ModalCloseButton,
+	ModalContent,
+	ModalFooter,
+	ModalHeader,
+	ModalOverlay,
+	Stack,
+	Text,
+	useDisclosure
 } from "@chakra-ui/react";
 import { useUser } from "@supabase/auth-helpers-react";
 import Image from "next/image";
@@ -31,9 +31,9 @@ export default function Conversations() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const user = useUser();
-    const router = useRouter();
-    const dispatch = useDispatch();
-    const { updateConvoId, updateDisplayed } = useContext(Context);
+	const router = useRouter();
+	const dispatch = useDispatch();
+	const { updateConvoId, updateDisplayed } = useContext(Context);
 	const handleSignOut = async () => {
 		try {
 			await supabase.auth.signOut();
@@ -102,14 +102,15 @@ export default function Conversations() {
 				.from("convos")
 				.select("*")
 				.or(`userIdOne.eq.${user?.id}, userIdTwo.eq.${user?.id}`);
-			if (error){
-                if(error.message === "JWT expired") router.push('/session-expired')
-            } console.log("error getConvos", error);
+			if (error) {
+				if (error.message === "JWT expired") router.push("/session-expired");
+			}
+			console.log("error getConvos", error);
 			const conversations = data.map((convo) => {
 				if (convo.creatorName === user?.user_metadata.full_name) {
 					return {
 						name: `${convo.receiverName}`,
-						id: convo.id,
+						id: convo.id
 					};
 				} else {
 					return {
@@ -123,28 +124,25 @@ export default function Conversations() {
 	};
 
 	useEffect(() => {
-        if (user.email === "kgarv6@gmail.com") {
-            alert('Whore')
-        }
-					supabase
-						.channel("new-convo")
-						.on(
-							"postgres_changes",
-							{
-								event: "INSERT",
-								schema: "public",
-								table: "convos"
-							},
-							(payload) => {
-								console.log("payload.new", payload.new);
-								if (
-									payload.new.userIdTwo === user?.id // userIdTwo is the receiver
-								) {
-									getConvos(payload.new);
-								}
-							}
-						)
-						.subscribe();
+		supabase
+			.channel("new-convo")
+			.on(
+				"postgres_changes",
+				{
+					event: "INSERT",
+					schema: "public",
+					table: "convos"
+				},
+				(payload) => {
+					console.log("payload.new", payload.new);
+					if (
+						payload.new.userIdTwo === user?.id // userIdTwo is the receiver
+					) {
+						getConvos(payload.new);
+					}
+				}
+			)
+			.subscribe();
 		getConvos();
 	}, []);
 
@@ -176,8 +174,8 @@ export default function Conversations() {
 								<Input
 									onChange={(e) => setSearchQuery(e.target.value)}
 									onKeyDown={async (e) => {
-                                        if (e.key === "Enter") findUsers(searchQuery);
-                                    }}
+										if (e.key === "Enter") findUsers(searchQuery);
+									}}
 									placeholder="Search for a name"
 									value={searchQuery}
 								/>
@@ -233,7 +231,7 @@ export default function Conversations() {
 							<Center>
 								<Button
 									backgroundColor={convoId === convo.id ? "#3d84f7" : "gray"}
-                                    className={styles.convoBox}
+									className={styles.convoBox}
 									width="85%"
 									height="70px"
 									mt={2}
@@ -245,7 +243,9 @@ export default function Conversations() {
 										dispatch(fetchMessagesAsync({ convoId: convo.id }));
 										setConvoId(convo.id);
 									}}>
-									<Text color={convoId === convo.id ? 'black' : 'white'}>{convo.name}</Text>
+									<Text color={convoId === convo.id ? "black" : "white"}>
+										{convo.name}
+									</Text>
 								</Button>
 							</Center>
 						))
